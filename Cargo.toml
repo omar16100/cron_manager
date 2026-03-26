@@ -1,0 +1,19 @@
+[package]
+name = "cron_manager"
+version = "0.1.0"
+edition = "2021"
+description = "A fast, native cron job manager with GUI"
+
+[dependencies]
+iced = { version = "0.13", features = ["tokio"] }
+croner = "2"
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+dirs = "6"
+sha2 = "0.10"
+thiserror = "2"
+
+[dev-dependencies]
+pretty_assertions = "1"
+tempfile = "3"

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cron Manager - Fast, Native Cron Job Manager</title>
+    <meta name="description" content="A fast, native desktop cron job manager built in Rust. Visual expression builder, safe editing, automatic backups.">
+    <style>
+        :root {
+            --bg: #1a1b26;
+            --bg-dark: #13141c;
+            --bg-card: #1e1f2e;
+            --bg-card-hover: #24253a;
+            --text: #c0caf5;
+            --text-dim: #565f89;
+            --text-bright: #e0e6ff;
+            --accent: #7aa2f7;
+            --accent-hover: #89b4fa;
+            --secondary: #bb9af7;
+            --green: #9ece6a;
+            --orange: #ff9e64;
+            --red: #f7768e;
+            --border: #292e42;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(26, 27, 38, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 10rem 2rem 6rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(122, 162, 247, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            color: var(--bg);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(122, 162, 247, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-dim);
+            color: var(--text-bright);
+            transform: translateY(-1px);
+        }
+
+        /* Stats bar */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 0.25rem;
+        }
+
+        /* Section */
+        section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            font-size: 1.05rem;
+        }
+
+        /* Feature grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem;
+            transition: all 0.25s;
+        }
+
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(122, 162, 247, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon.blue { background: rgba(122, 162, 247, 0.15); color: var(--accent); }
+        .feature-icon.purple { background: rgba(187, 154, 247, 0.15); color: var(--secondary); }
+        .feature-icon.green { background: rgba(158, 206, 106, 0.15); color: var(--green); }
+        .feature-icon.orange { background: rgba(255, 158, 100, 0.15); color: var(--orange); }
+        .feature-icon.red { background: rgba(247, 118, 142, 0.15); color: var(--red); }
+
+        .feature-card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* Install */
+        .install-section {
+            background: var(--bg-dark);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 3rem;
+            margin-top: 2rem;
+        }
+
+        .code-block {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.9rem;
+            color: var(--green);
+            overflow-x: auto;
+            margin-top: 1rem;
+            line-height: 1.8;
+        }
+
+        .code-comment {
+            color: var(--text-dim);
+        }
+
+        .code-cmd {
+            color: var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-built {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .footer-built a {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .stats {
+                gap: 1.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.4rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .install-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            section {
+                padding: 3rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 8rem 1.5rem 4rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <div class="nav-logo">cron<span>_manager</span></div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#install">Install</a></li>
+            <li><a href="https://github.com/omar16100/cron_manager">GitHub</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1>Manage cron jobs<br><span>without the pain</span></h1>
+    <p>A fast, native desktop cron manager built in Rust. Visual expression builder, safe editing with conflict detection, automatic backups. Single binary, zero dependencies.</p>
+    <div class="hero-buttons">
+        <a href="https://github.com/omar16100/cron_manager" class="btn btn-primary">View on GitHub</a>
+        <a href="#install" class="btn btn-outline">Get Started</a>
+    </div>
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-value">~9MB</div>
+            <div class="stat-label">Binary Size</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">61</div>
+            <div class="stat-label">Unit Tests</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Runtime Deps</div>
+        </div>
+    </div>
+</div>
+
+<section id="features">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need to manage cron</h2>
+    <p class="section-desc">Stop fighting with crontab syntax. Cron Manager gives you a modern GUI with safety features that the command line can't.</p>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon blue">+</div>
+            <h3>Full CRUD Operations</h3>
+            <p>Create, edit, enable/disable, and delete cron jobs through a clean interface. Search and filter by keyword, tag, or status.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon purple">&#9783;</div>
+            <h3>Visual Expression Builder</h3>
+            <p>Build cron schedules visually with dropdowns and sliders, or type raw expressions. See next N execution times before saving.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon green">&#10003;</div>
+            <h3>Conflict Detection</h3>
+            <p>SHA-256 checksums detect external crontab changes before overwriting. Never accidentally lose edits made outside the app.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon orange">&#8634;</div>
+            <h3>Automatic Backups</h3>
+            <p>Every save creates a timestamped backup with 0600 permissions. 20-file retention policy with one-click restore.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon blue">&#8644;</div>
+            <h3>Lossless Round-Trips</h3>
+            <p>Comments, whitespace, environment variables, and % in commands are preserved verbatim. What you load is what you save.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon red">&#9000;</div>
+            <h3>Keyboard Shortcuts</h3>
+            <p>Power-user friendly with full keyboard navigation. Undo/redo for in-session edits. Tag system for job organization.</p>
+        </div>
+    </div>
+</section>
+
+<section id="install">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Install in seconds</h2>
+    <p class="section-desc">Build from source with Cargo. Requires Rust 1.70+ and a system with crontab (Linux, macOS).</p>
+
+    <div class="install-section">
+        <div class="code-block">
+            <span class="code-comment"># Clone the repository</span><br>
+            <span class="code-cmd">git clone</span> https://github.com/omar16100/cron_manager.git<br>
+            <span class="code-cmd">cd</span> cron_manager<br>
+            <br>
+            <span class="code-comment"># Build release binary</span><br>
+            <span class="code-cmd">cargo build</span> --release<br>
+            <br>
+            <span class="code-comment"># Run</span><br>
+            ./target/release/<span class="code-cmd">cron_manager</span>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-built">
+            Built by <a href="https://omarshabab.com">omarshabab.com</a>
+        </div>
+        <div class="footer-links">
+            <a href="https://github.com/omar16100/cron_manager">GitHub</a>
+            <a href="https://github.com/omar16100/cron_manager/blob/main/LICENSE">MIT License</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
