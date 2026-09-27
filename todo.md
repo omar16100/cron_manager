@@ -6,9 +6,11 @@
 - 27 Sep 2026: added GitHub Actions CI (`.github/workflows/ci.yml`, macOS build + test).
 - 27 Sep 2026: fixed `docs/c4model.md` (view locations, platform backup path, em dashes).
 - 27 Sep 2026: set GitHub description, homepage and topics.
+- 27 Sep 2026: `rand` 0.8.5 to 0.8.8 in `Cargo.lock` (Dependabot alert 2); `lru` 0.12.5 alert dismissed as tolerable risk, `IterMut` is never reached through iced 0.13 (see `docs/27092026_security_deps_plan.md`).
 
 ## Open
 - Features advertised before but not implemented: undo/redo, keyboard shortcuts, backup restore from the GUI, enabled/disabled filter, env var display.
 - Linux is not covered by CI.
 - Visual builder: switching to Visual with an expression `decompose` cannot represent (e.g. `@daily`) resets to default fields; `is_builder_compatible` exists but is unused by the UI.
 - Backups are best-effort: a failed backup only logs a warning and the save proceeds.
+- `lru` 0.12.5 stays in the lockfile until iced is upgraded to 0.14 (0.13's `iced_glyphon` requires `lru ^0.12`; 0.14 moves to `cryoglyph`, which requires `lru ^0.16`).
