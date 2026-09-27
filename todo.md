@@ -13,4 +13,4 @@
 - Linux is not covered by CI.
 - Visual builder: switching to Visual with an expression `decompose` cannot represent (e.g. `@daily`) resets to default fields; `is_builder_compatible` exists but is unused by the UI.
 - Backups are best-effort: a failed backup only logs a warning and the save proceeds.
-- `lru` 0.12.5 stays in the lockfile until iced is upgraded to 0.14 (0.13's `iced_glyphon` requires `lru ^0.12`; 0.14 moves to `cryoglyph`, which requires `lru ^0.16`).
+- `lru` 0.12.5 stays in the lockfile until a dependency change removes it: 0.13's `iced_glyphon` requires `lru ^0.12`. Likely route is iced 0.14 (`cryoglyph`, `lru ^0.16`); a `tiny-skia`-only renderer is the untried alternative.
