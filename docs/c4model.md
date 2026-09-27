@@ -11,7 +11,7 @@
 - **User**: Developer, sysadmin, or DevOps engineer managing cron jobs
 - **Cron Manager App**: Native Rust GUI for CRUD operations on cron jobs
 - **System Crontab**: The OS crontab service, accessed via `crontab -l` / `crontab -`
-- **Filesystem**: Local backup storage at `~/.local/share/cron_manager/backups/`
+- **Filesystem**: Local backup storage at `<data_local_dir>/cron_manager/backups/` (`dirs::data_local_dir()`: `~/Library/Application Support` on macOS, `~/.local/share` on Linux)
 
 ## Level 2: Container Diagram
 
@@ -41,7 +41,7 @@
               │                         │
     ┌─────────▼──────┐    ┌────────────▼─────┐
     │ System Crontab │    │ Backup Filesystem │
-    │ (crontab CLI)  │    │ ~/.local/share/   │
+    │ (crontab CLI)  │    │ data_local_dir    │
     └────────────────┘    └──────────────────┘
 ```
 
@@ -49,9 +49,10 @@
 
 ### GUI Layer (src/gui/)
 - **theme.rs**: Color scheme, spacing, font sizes
-- **views/job_list.rs**: Main scrollable job list with search and tag filter
-- **views/job_editor.rs**: Create/edit form with command, description, tags
-- **views/expression_builder.rs**: Visual 5-field cron builder with pick_lists
+- **views/, components/**: placeholder modules (empty); all views currently live in `src/app.rs`:
+  - `view_job_list` / `view_job_card`: scrollable job list with keyword search and tag filter
+  - `view_job_editor`: create/edit form with command, description, tags, schedule preview
+  - `view_visual_builder` / `view_field_picker`: visual 5-field cron builder with pick_lists
 
 ### Core Engine (src/core/)
 - **backend.rs**: `CrontabBackend` trait + `SystemCrontab` impl (system I/O)
@@ -62,9 +63,9 @@
 - **backup.rs**: Creates timestamped backups with 0600 permissions, retention policy
 
 ### Model Layer (src/model/)
-- **crontab.rs**: `CrontabLine` enum (Job, Special, Comment, EnvVar, Blank) — source of truth
+- **crontab.rs**: `CrontabLine` enum (Job, Special, Comment, EnvVar, Blank), the source of truth
 - **job.rs**: `CronJob` (derived view), `JobDraft` (editor state), `JobId` (counter-based)
-- **schedule.rs**: `ScheduleFields`, `FieldValue` — visual builder data types
+- **schedule.rs**: `ScheduleFields`, `FieldValue`: visual builder data types
 
 ### App Orchestrator (src/app.rs)
 - `App` struct: owns all state
@@ -76,15 +77,15 @@
 
 ```
 Read:   crontab -l → raw string → parser → Vec<CrontabLine> → extract_jobs → Vec<CronJob>
-Write:  Vec<CrontabLine> → writer → raw string → backup → conflict check → crontab -
+Write:  Vec<CrontabLine> → writer → raw string → conflict check (abort + reload on mismatch) → best-effort backup of live crontab → crontab -
 Edit:   CronJob → JobDraft → UI edits → update_job_from_draft → Vec<CrontabLine>
 ```
 
 ## Key Design Decisions
 
-1. `Vec<CrontabLine>` is the single source of truth — all mutations happen here
+1. `Vec<CrontabLine>` is the single source of truth; all mutations happen here
 2. Environment variables are standalone lines, not job properties
-3. Stable counter-based `JobId` — never derived from content
+3. Stable counter-based `JobId`, never derived from content
 4. SHA-256 conflict detection before every write
 5. Lossless round-trips via raw text preservation
-6. Visual builder is best-effort — falls back to raw for non-representable expressions
+6. Visual builder only represents expressions that `expression::decompose` accepts; switching to Visual with any other expression (e.g. a macro) starts from default fields rather than falling back to raw (`is_builder_compatible` exists but the UI does not call it yet)

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cron Manager - Fast, Native Cron Job Manager</title>
-    <meta name="description" content="A fast, native desktop cron job manager built in Rust. Visual expression builder, safe editing, automatic backups.">
+    <title>Cron Manager - Native Desktop Cron Job Manager</title>
+    <meta name="description" content="A native desktop cron job manager built in Rust. Visual expression builder, conflict detection, automatic backups.">
     <style>
         :root {
             --bg: #1a1b26;
@@ -210,6 +210,20 @@
             text-transform: uppercase;
             letter-spacing: 0.08em;
             margin-top: 0.25rem;
+        }
+
+        .hero .stat-note {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .hero .stat-note code,
+        .section-desc code,
+        .feature-card code {
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.9em;
         }
 
         /* Section */
@@ -438,75 +452,76 @@
 
 <div class="hero">
     <h1>Manage cron jobs<br><span>without the pain</span></h1>
-    <p>A fast, native desktop cron manager built in Rust. Visual expression builder, safe editing with conflict detection, automatic backups. Single binary, zero dependencies.</p>
+    <p>A native desktop cron manager built in Rust. Visual expression builder, safe editing with conflict detection, automatic backups. A single binary that, on macOS, links only system frameworks and libraries.</p>
     <div class="hero-buttons">
         <a href="https://github.com/omar16100/cron_manager" class="btn btn-primary">View on GitHub</a>
         <a href="#install" class="btn btn-outline">Get Started</a>
     </div>
     <div class="stats">
         <div class="stat">
-            <div class="stat-value">~9MB</div>
-            <div class="stat-label">Binary Size</div>
+            <div class="stat-value">9.2 MiB</div>
+            <div class="stat-label">Release Binary (macOS arm64)</div>
         </div>
         <div class="stat">
             <div class="stat-value">61</div>
             <div class="stat-label">Unit Tests</div>
         </div>
         <div class="stat">
-            <div class="stat-value">0</div>
-            <div class="stat-label">Runtime Deps</div>
+            <div class="stat-value">MIT</div>
+            <div class="stat-label">License</div>
         </div>
     </div>
+    <p class="stat-note">Binary size measured 27 Sep 2026: <code>cargo build --release</code> with rustc 1.95.0 on macOS 26.3 (arm64), 9,627,232 bytes. It varies by platform and toolchain.</p>
 </div>
 
 <section id="features">
     <div class="section-label">Features</div>
     <h2 class="section-title">Everything you need to manage cron</h2>
-    <p class="section-desc">Stop fighting with crontab syntax. Cron Manager gives you a modern GUI with safety features that the command line can't.</p>
+    <p class="section-desc">A GUI over your user crontab that adds a schedule preview, conflict detection and backups on top of the <code>crontab</code> command.</p>
 
     <div class="features-grid">
         <div class="feature-card">
             <div class="feature-icon blue">+</div>
             <h3>Full CRUD Operations</h3>
-            <p>Create, edit, enable/disable, and delete cron jobs through a clean interface. Search and filter by keyword, tag, or status.</p>
+            <p>Create, edit, enable/disable, and delete cron jobs through a clean interface. Search by keyword and filter by tag.</p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon purple">&#9783;</div>
             <h3>Visual Expression Builder</h3>
-            <p>Build cron schedules visually with dropdowns and sliders, or type raw expressions. See next N execution times before saving.</p>
+            <p>Build cron schedules visually with a dropdown per field, or type raw expressions. See a plain-language description and the next 5 execution times before saving.</p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon green">&#10003;</div>
             <h3>Conflict Detection</h3>
-            <p>SHA-256 checksums detect external crontab changes before overwriting. Never accidentally lose edits made outside the app.</p>
+            <p>A SHA-256 checksum detects crontab changes made outside the app. If one is found, the save is aborted and the crontab is reloaded instead of overwritten.</p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon orange">&#8634;</div>
             <h3>Automatic Backups</h3>
-            <p>Every save creates a timestamped backup with 0600 permissions. 20-file retention policy with one-click restore.</p>
+            <p>Before every save, the app attempts to copy the current crontab to a timestamped backup with 0600 permissions (best-effort: a failed backup is logged and the save continues). The 20 most recent are kept; restore one with <code>crontab &lt;file&gt;</code>.</p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon blue">&#8644;</div>
             <h3>Lossless Round-Trips</h3>
-            <p>Comments, whitespace, environment variables, and % in commands are preserved verbatim. What you load is what you save.</p>
+            <p>Lines you do not edit, including comments, environment variables and % in commands, are written back exactly as read. Whitespace-only lines become empty, CRLF becomes LF, and non-empty output ends with a newline.</p>
         </div>
 
         <div class="feature-card">
-            <div class="feature-icon red">&#9000;</div>
-            <h3>Keyboard Shortcuts</h3>
-            <p>Power-user friendly with full keyboard navigation. Undo/redo for in-session edits. Tag system for job organization.</p>
+            <div class="feature-icon red">#</div>
+            <h3>Tags and Macros</h3>
+            <p>Organize jobs with <code># [tag1, tag2] description</code> comments. Special macros such as <code>@reboot</code>, <code>@daily</code> and <code>@hourly</code> are supported.</p>
         </div>
     </div>
 </section>
 
 <section id="install">
     <div class="section-label">Get Started</div>
-    <h2 class="section-title">Install in seconds</h2>
-    <p class="section-desc">Build from source with Cargo. Requires Rust 1.70+ and a system with crontab (Linux, macOS).</p>
+    <h2 class="section-title">Build from source</h2>
+    <p class="section-desc">Build from source with Cargo. Requires Rust 1.87+ and a system with the <code>crontab</code> command. Built and tested in CI on macOS; Linux is expected to work but is not tested in CI.</p>
 
     <div class="install-section">
         <div class="code-block">

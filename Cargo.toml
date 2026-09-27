@@ -2,7 +2,8 @@
 name = "cron_manager"
 version = "0.1.0"
 edition = "2021"
-description = "A fast, native cron job manager with GUI"
+rust-version = "1.87"
+description = "A native cron job manager with GUI"
 
 [dependencies]
 iced = { version = "0.13", features = ["tokio"] }
