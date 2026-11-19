@@ -7,6 +7,7 @@
 - 27 Sep 2026: fixed `docs/c4model.md` (view locations, platform backup path, em dashes).
 - 27 Sep 2026: set GitHub description, homepage and topics.
 - 27 Sep 2026: `rand` 0.8.5 to 0.8.8 in `Cargo.lock` (Dependabot alert 2); `lru` 0.12.5 alert dismissed as tolerable risk, `IterMut` is never reached through iced 0.13 (see `docs/27092026_security_deps_plan.md`).
+- 19 Nov 2026: the "Built by" link in `README.md` and `docs/index.html` now points at `omar.sg`. The old domain expired.
 
 ## Open
 - Features advertised before but not implemented: undo/redo, keyboard shortcuts, backup restore from the GUI, enabled/disabled filter, env var display.
