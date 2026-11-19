@@ -53,4 +53,4 @@ MIT - see [LICENSE](LICENSE)
 
 ## Built by
 
-[omarshabab.com](https://omarshabab.com)
+[omar.sg](https://omar.sg)
